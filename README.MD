@@ -1,3 +1,6 @@
+
+![Sentiments Analysis ](https://github.com/natzaz/Sentiments-Analysis/blob/main/pantalla%20principal.png)
+
 # Análisis de Sentimientos en Python
 
 Este script de Python permite realizar un análisis de sentimientos sobre textos utilizando la biblioteca TextBlob y el analizador VADER de NLTK. El script clasifica el texto en tres categorías: Positivo, Negativo y Neutro.
