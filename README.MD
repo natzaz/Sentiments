@@ -10,6 +10,9 @@ Este script de Python permite realizar un análisis de sentimientos sobre textos
 - Clasificación de sentimientos utilizando frases clave específicas.
 - Análisis de sentimientos con el modelo VADER.
 - Integración de ambas metodologías para una clasificación más precisa.
+- Descarga en PDF
+
+![Descarga en PDF ](https://github.com/natzaz/Sentiments-Analysis/blob/main/PDF.png)
 
 ## Requisitos
 
