@@ -1,0 +1,230 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Análisis de Sentimientos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 12px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="submit"], .download-button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover, .download-button:hover {
+            background-color: #45a049;
+        }
+        .links {
+            margin-bottom: 20px;
+        }
+        .links h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .links ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .links li {
+            background-color: #e7e7e7;
+            margin-bottom: 8px;
+            padding: 12px;
+            border-radius: 4px;
+            word-break: break-all;
+            display: flex;
+            flex-direction: column;
+        }
+        .links li a {
+            text-decoration: none;
+            color: #0066cc;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .links li a:hover {
+            text-decoration: underline;
+        }
+        .polarity {
+            font-weight: bold;
+            color: #333;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+            font-size: 14px;
+        }
+        .semaforo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .sem {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .sem.positivo {
+            background-color: #4CAF50; /* Verde */
+        }
+        .sem.neutro {
+            background-color: #FFC107; /* Amarillo */
+        }
+        .sem.negativo {
+            background-color: #F44336; /* Rojo */
+        }
+        .sem span {
+            /* Eliminamos las propiedades de posicionamiento que interferían con Flexbox */
+            /* position: relative; */
+            /* transform: translate(-50%, -50%); */
+            /* Ahora el span se centra automáticamente gracias a Flexbox */
+            display: inline-block; /* Asegura que el contenido se muestre correctamente */
+            text-align: center; /* Centra el texto horizontalmente */
+            width: 100%; /* Asegura que el span ocupe todo el ancho del contenedor */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Análisis de Sentimientos de Enlaces</h1>
+        <form method="POST">
+            <input type="text" name="keyword" placeholder="Introduce una palabra clave" required>
+            <input type="submit" value="Analizar">
+        </form>
+
+        {% if results %}
+            {% if results.error %}
+                <div class="error">{{ results.error }}</div>
+            {% else %}
+                <h2>Resultados para: "{{ results.keyword }}"</h2>
+                
+                <!-- Sección del Semáforo -->
+                <div class="semaforo">
+                    <div class="sem positivo">
+                        <span>{{ results.positive_count }}</span>
+                    </div>
+                    <div class="sem neutro">
+                        <span>{{ results.neutral_count }}</span>
+                    </div>
+                    <div class="sem negativo">
+                        <span>{{ results.negative_count }}</span>
+                    </div>
+                </div>
+                
+                <!-- Botón para Descargar PDF -->
+                <form method="POST" action="{{ url_for('download_pdf') }}">
+                    <input type="hidden" name="keyword" value="{{ results.keyword }}">
+                    <button type="submit" class="download-button">Descargar PDF</button>
+                </form>
+
+                <!-- Enlaces Positivos -->
+                <div class="links">
+                    <h3>Enlaces Positivos</h3>
+                    {% if results.positive_links %}
+                        <ul>
+                            {% for link in results.positive_links %}
+                                <li>
+                                    <a href="{{ link.url }}" target="_blank">
+                                        {{ 'Título no disponible' if link.title == 'Sin título' else link.title }}
+                                    </a>
+                                    <span class="polarity">Polaridad: {{ "%.2f"|format(link.polarity) }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No se encontraron enlaces positivos.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Enlaces Negativos -->
+                <div class="links">
+                    <h3>Enlaces Negativos</h3>
+                    {% if results.negative_links %}
+                        <ul>
+                            {% for link in results.negative_links %}
+                                <li>
+                                    <a href="{{ link.url }}" target="_blank">
+                                        {{ 'Título no disponible' if link.title == 'Sin título' else link.title }}
+                                    </a>
+                                    <span class="polarity">Polaridad: {{ "%.2f"|format(link.polarity) }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No se encontraron enlaces negativos.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Enlaces Neutros -->
+                <div class="links">
+                    <h3>Enlaces Neutros</h3>
+                    {% if results.neutral_links %}
+                        <ul>
+                            {% for link in results.neutral_links %}
+                                <li>
+                                    <a href="{{ link.url }}" target="_blank">
+                                        {{ 'Título no disponible' if link.title == 'Sin título' else link.title }}
+                                    </a>
+                                    <span class="polarity">Polaridad: {{ "%.2f"|format(link.polarity) }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No se encontraron enlaces neutros.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="footer">
+            &copy; {{ current_year }} Análisis de Sentimientos by Nats Sigler. Todos los derechos reservados.
+        </div>
+    </div>
+</body>
+</html>
